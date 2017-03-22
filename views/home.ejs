@@ -75,59 +75,80 @@
 						</div>
             -->
 						<div class="movie-list">
+						<%
+							for(var param in listMovies[page]){
+							%>
 							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-3.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Maleficient</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
+								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= listMovies[page][param].poster_path%>" alt="<%= listMovies[page][param].title%>"></figure>
+								<div class="movie-title"><a href="single"><%= listMovies[page][param].title%></a></div>
+								<p class="giveMeEllipsis"><%= listMovies[page][param].overview%></p>
 							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-4.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">The adventure of Tintin</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-5.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Hobbit</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-6.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Exists</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-1.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Drive hard</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-2.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Robocop</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-7.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Life of Pi</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-8.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">The Colony</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
+							<%
+							}
+						%>
+
 						</div> <!-- .movie-list -->
 
-            <!--
+            
 						<div class="pagination">
-							<a href="#" class="page-number prev"><i class="fa fa-angle-left"></i></a>
-							<span class="page-number current">1</span>
-							<a href="#" class="page-number">2</a>
-							<a href="#" class="page-number">3</a>
-							<a href="#" class="page-number">4</a>
-							<a href="#" class="page-number">5</a>
-							<a href="#" class="page-number next"><i class="fa fa-angle-right"></i></a>
+							<%if (page < listMovies.totalPages-5){
+								%>
+								<% switch(page){								
+									case 1 : %>
+										<span class="page-number current"><%= page%></span>
+										<a href="/?page=<%= page+1%>" class="page-number"><%= page+1%></a>
+										<a href="/?page=<%= page+2%>" class="page-number"><%= page+2%></a>
+										<a href="/?page=<%= page+3%>" class="page-number"><%= page+3%></a>
+										<a href="/?page=<%= page+4%>" class="page-number"><%= page+4%></a>
+										<a href="/?page=<%= page+5%>" class="page-number next">
+									<% break;
+									case 2 : %>
+										<a href="/?page=<%= page-1%>" class="page-number"><%= page-1%></a>
+										<span class="page-number current"><%= page%></span>
+										<a href="/?page=<%= page+1%>" class="page-number"><%= page+1%></a>
+										<a href="/?page=<%= page+2%>" class="page-number"><%= page+2%></a>
+										<a href="/?page=<%= page+3%>" class="page-number"><%= page+3%></a>
+										<a href="/?page=<%= page+4%>" class="page-number next">
+									<% break;	
+									case 3 : %>
+										<a href="/?page=<%= page-2%>" class="page-number"><%= page-2%></a>
+										<a href="/?page=<%= page-1%>" class="page-number"><%= page-1%></a>
+										<span class="page-number current"><%= page%></span>
+										<a href="/?page=<%= page+1%>" class="page-number"><%= page+1%></a>
+										<a href="/?page=<%= page+2%>" class="page-number"><%= page+2%></a>
+										<a href="/?page=<%= page+3%>" class="page-number next">
+									<% break;		
+									case 4 : %>
+										<a href="/?page=<%= page-2%>" class="page-number"><%= page-3%></a>
+										<a href="/?page=<%= page-1%>" class="page-number"><%= page-2%></a>
+										<a href="/?page=<%= page+1%>" class="page-number"><%= page-1%></a>
+										<span class="page-number current"><%= page%></span>
+										<a href="/?page=<%= page+2%>" class="page-number"><%= page+1%></a>
+										<a href="/?page=<%= page+3%>" class="page-number next">
+									<% break;
+									default : %>
+										<a href="/?page=<%= page-4%>" class="page-number prev"><i class="fa fa-angle-left"></i></a>
+										<a href="/?page=<%= page-3%>" class="page-number"><%= page-3%></a>
+										<a href="/?page=<%= page-2%>" class="page-number"><%= page-2%></a>
+										<a href="/?page=<%= page-1%>" class="page-number"><%= page-1%></a>
+										<span class="page-number current"><%= page%></span>
+										<a href="/?page=<%= page+1%>" class="page-number"><%= page+1%></a>
+										<a href="/?page=<%= page+2%>" class="page-number next">																															
+								<%;}
+								%>
+								<i class="fa fa-angle-right"></i></a>
+							<%}
+								else{%>
+										<a href="/?page=<%= page-5%>" class="page-number prev"><i class="fa fa-angle-left"></i></a>
+										<a href="/?page=<%= page-4%>" class="page-number"><%= page-4%></a>
+										<a href="/?page=<%= page-3%>" class="page-number"><%= page-3%></a>
+										<a href="/?page=<%= page-2%>" class="page-number"><%= page-2%></a>
+										<a href="/?page=<%= page-1%>" class="page-number"><%= page-1%></a>										
+										<span class="page-number current"><%= page%></span>
+								<%}
+								%>
 						</div>
-            -->
+            
 					</div>
 				</div> <!-- .container -->
 			</main>
@@ -140,7 +161,7 @@
 		<script src="js/jquery-1.11.1.min.js"></script>
 		<script src="js/plugins.js"></script>
 		<script src="js/app.js"></script>
-		
+		<script src="js/script.js"></script>
 	</body>
 
 </html>

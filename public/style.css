@@ -1,3 +1,17 @@
+
+.giveMeEllipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    /* number of lines to show */
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+
+
+
+
 /*!
  * Project_Name: Themezy Movie Review
  * Author: Themezy
