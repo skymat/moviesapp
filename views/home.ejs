@@ -78,9 +78,11 @@
 						<%
 							for(var param in listMovies[page]){
 							%>
-							<div class="movie">
+							<div class="movie" id="<%=param%>">
 								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= listMovies[page][param].poster_path%>" alt="<%= listMovies[page][param].title%>"></figure>
 								<div class="movie-title"><a href="single?id=<%= listMovies[page][param].id%>"><%= listMovies[page][param].title%></a></div>
+								<img class="<%= listMovies[page][param].favori ? 'myFavori' : 'addFavori';%>"></img>
+								<p><%=listMovies[page][param].favori%></p>
 								<p class="giveMeEllipsis"><%= listMovies[page][param].overview%></p>
 							</div>
 							<%

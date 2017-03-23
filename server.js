@@ -5,15 +5,28 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 var mongoose= require('mongoose');
 
-//Connexion à la base de données
+//Connexion à la base de données Mongo
 mongoose.connect('mongodb://localhost/moviesapp' , function(err) {
   if (err) { throw err; }
 });
 
+//Définition du schéma dans Mongo
+var myMovieAccountSchema = mongoose.Schema({
+    id: Number,
+    favori: Boolean,
+});
 
+//Lie le schéma au model Mongo
+var MyMovies = mongoose.model('MyMovies', myMovieAccountSchema);
+/*
+var fav =  new MyMovies({id : 118340,favori : true});
+  fav.save(function (error, fav) {
+    
+  });
+*/
 var listMovies = {};
 var pageG = 1;
-callDiscoverMovies(pageG,null,null);
+//callDiscoverMovies(pageG,null,null);
 function callDiscoverMovies(page,renderPage,id)
 {
     console.log("page: " + page, " -- renderPage: ", renderPage , " -- id: "+ id );
@@ -38,6 +51,12 @@ function callDiscoverMovies(page,renderPage,id)
                 body.results.forEach(function(element) {
                     listMovies[page][element.id] = element;
                     listMovies[page][element.id].details = null;
+                    
+                    var fav = isFavori(element.id);
+                
+                    console.log("id",fav);
+                    listMovies[page][element.id].favori = fav;
+                    
                     console.log("ELEMENT ID - " + element.id);
                 }, this);
             }
@@ -66,6 +85,7 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             renderPage(id);
     }
     else{
+        //Requête pour WS de détails sur un film spécifique (id)
         var settingsDetails = {
             "async": true,
             "crossDomain": true,
@@ -74,6 +94,7 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             "headers": {},
             "data": "{}"
         }
+        //WS détails
         request(settingsDetails.url, function(error, response, body) {
             console.log("details - " + id);
             body = JSON.parse(body);
@@ -85,6 +106,7 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
                 listMovies[page][id].realisateurs = "";
                 listMovies[page][id].acteurs = "";
 
+                //Requête pour obtenir les acteurs et le staff du film
                 var people = {
                     "async": true,
                     "crossDomain": true,
@@ -93,9 +115,8 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
                     "headers": {},
                     "data": "{}"
                 }
-
+                //WS acteurs/Staff
                 request(people.url, function(error, response, body) {
-                    console.log("People - " + id);
                     body = JSON.parse(body);
                     if(body != undefined && page) {
                         formatAndSaveRealisateurs(page,id,body);
@@ -110,6 +131,17 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             }
         });
     }
+}
+
+var isFavori = function(id){
+    var fav = false;
+    //Récupération de l'info Boolean si le film est en favori
+    MyMovies.find({id : id}).exec(function (err, movie) {
+        fav = movie.length > 0;
+        console.log(id,fav);
+        return fav;
+    });
+    console.log("return",fav);
 }
 
 function formatAndSaveCategories(page,id){
