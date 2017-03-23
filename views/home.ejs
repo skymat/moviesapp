@@ -80,7 +80,7 @@
 							%>
 							<div class="movie">
 								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= listMovies[page][param].poster_path%>" alt="<%= listMovies[page][param].title%>"></figure>
-								<div class="movie-title"><a href="single"><%= listMovies[page][param].title%></a></div>
+								<div class="movie-title"><a href="single?id=<%= listMovies[page][param].id%>"><%= listMovies[page][param].title%></a></div>
 								<p class="giveMeEllipsis"><%= listMovies[page][param].overview%></p>
 							</div>
 							<%
