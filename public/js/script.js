@@ -15,24 +15,24 @@ var page = $.urlParam('page')? $.urlParam('page'):1;
 //Chargement des favoris
   $.post( "/getFavoris",{page}, function( data ) {
     for (var i = 0; i < data.length; i++) {
-      $("#"+data[i]+" .addFavori").removeClass("addFavori").addClass("myFavori");
+      $("#"+data[i]+" .fa-star-o").removeClass("fa-star-o").addClass("fa-star");
     }
   });
 
- $(".addFavori,.myFavori").click(function(event){ 
+ $(".fa-star-o,.fa-star").click(function(event){ 
     var id = $(this).parents('div .movief').attr('id');
     console.log(id);
     var current = $(this);
-    if ($(this).hasClass("myFavori"))
+    if ($(this).hasClass("fa-star"))
       $.post( "/removeFavori",{page,id}, function( data ) {
-        current.removeClass("myFavori");
-        current.addClass("addFavori");
+        current.removeClass("fa-star");
+        current.addClass("fa-star-o");
       });
-    else if ($(this).hasClass("addFavori"))
+    else if ($(this).hasClass("fa-star-o"))
       $.post( "/addFavori",{page,id}, function( data ) {
         console.log(data);
-        current.removeClass("addFavori");
-        current.addClass("myFavori");
+        current.removeClass("fa-star-o");
+        current.addClass("fa-star");
       });
  });
 

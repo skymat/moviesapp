@@ -81,8 +81,8 @@
 							%>
 							<div class="movie movief" id="<%=param%>">
 								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= listMovies[page][param].poster_path%>" alt="<%= listMovies[page][param].title%>"></figure>
+								<div class="movie-title"><i class="fa fa-star-o" aria-hidden="true"></i></div>
 								<div class="movie-title"><a href="single?id=<%= listMovies[page][param].id%>"><%= listMovies[page][param].title%></a></div>
-								<img class="addFavori"></img>
 								<p class="giveMeEllipsis"><%= listMovies[page][param].overview%></p>
 							</div>
 							<%}

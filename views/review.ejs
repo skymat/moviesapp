@@ -74,17 +74,15 @@
 							</select>
 						</div>
             -->
-						<div class="movie-list">
-						<%
-							for(var id in myMovies){
-								console.log("myMovies",myMovies[id]);
+						<div class="movie-list"><%= myMovies[118340]%>
+						<%							
+							for(var id in myMovies){								
 								if(myMovies[id].content != undefined){
-									//console.log("myMovies",myMovies[id].content);
 							%>
 							<div class="movie movief" id="<%=id%>">
 								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= myMovies[id].content.poster_path%>" alt="<%= myMovies[id].content.title%>"></figure>
 								<div class="movie-title"><a href="single?id=<%= myMovies[id].content.id%>"><%= myMovies[id].content.title%></a></div>
-								<img class="myFavori"></img>
+								<div class="movie-title"><i class="fa fa-star" aria-hidden="true"></i></div>
 								<p class="giveMeEllipsis"><%= myMovies[id].content.overview%></p>
 							</div>
 							<%}

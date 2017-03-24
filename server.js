@@ -48,6 +48,11 @@ function isFavori(id){
     return myMovies[id] ===undefined ? false : true;
 }
 
+function setFavoriCache(id,page){
+    if (page && listMovies[page]!= undefined && listMovies[page][id])
+        myMovies[id].content = listMovies[page][id];
+}
+
 
 //Mise en cache de la première page
 callDiscoverMovies(pageG,null,null);
@@ -78,7 +83,7 @@ function callDiscoverMovies(page,renderPage,id)
                     listMovies[page][element.id] = element;
                     listMovies[page][element.id].details = null;
                     if(isFavori(element.id)){
-                        myMovies[element.id].content = listMovies[page][element.id];
+                        setFavoriCache(id,page);
                     }
                 }, this);
             }
@@ -292,8 +297,10 @@ app.get('/contact', function (req, res) {
 });
 
 app.get('/review', function (req, res) {
-  res.render('review', {listMovies,myMovies
-  });
+var pb = "PB ça marche pas : il faut que je trouve une solution pour pré charger (ou call WS détails) les données sans lien avec la notion de pagination. ";
+pb += "Du coup ça oblige à revoir le contenu de la page single sans notion de [page]";
+//res.render('review', {listMovies,myMovies  });
+res.send(pb);
 });
 
 
