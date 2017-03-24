@@ -39,8 +39,8 @@
 					<div class="main-navigation">
 						<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
 						<ul class="menu">
-							<li class="menu-item  current-menu-item"><a href="home">Last releases</a></li>
-							<li class="menu-item"><a href="review">My movies</a></li>
+							<li class="menu-item "><a href="home">Last releases</a></li>
+							<li class="menu-item current-menu-item"><a href="review">My movies</a></li>
 							<li class="menu-item"><a href="contact">Contact</a></li>
 						</ul> <!-- .menu -->
 
@@ -75,18 +75,21 @@
 						</div>
             -->
 						<div class="movie-list">
-				<!--		<%
+						<%
 							for(var id in myMovies){
+								console.log("myMovies",myMovies[id]);
+								if(myMovies[id].content != undefined){
+									//console.log("myMovies",myMovies[id].content);
 							%>
-							<div class="movie" id="<%=param%>">
-								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= listMovies[page][param].poster_path%>" alt="<%= listMovies[page][param].title%>"></figure>
-								<div class="movie-title"><a href="single?id=<%= listMovies[page][param].id%>"><%= listMovies[page][param].title%></a></div>
-								<img class="<%= listMovies[page][param].favori ? 'myFavori' : 'addFavori';%>"></img>
-								<p class="giveMeEllipsis"><%= listMovies[page][param].overview%></p>
+							<div class="movie movief" id="<%=id%>">
+								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= myMovies[id].content.poster_path%>" alt="<%= myMovies[id].content.title%>"></figure>
+								<div class="movie-title"><a href="single?id=<%= myMovies[id].content.id%>"><%= myMovies[id].content.title%></a></div>
+								<img class="myFavori"></img>
+								<p class="giveMeEllipsis"><%= myMovies[id].content.overview%></p>
 							</div>
-							<%
+							<%}
 							}
-						%>-->
+						%>
 						</div> <!-- .movie-list -->
 
             <!--

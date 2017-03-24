@@ -20,7 +20,8 @@ var page = $.urlParam('page')? $.urlParam('page'):1;
   });
 
  $(".addFavori,.myFavori").click(function(event){ 
-    var id = $(this).parents('div .movie').attr('id');
+    var id = $(this).parents('div .movief').attr('id');
+    console.log(id);
     var current = $(this);
     if ($(this).hasClass("myFavori"))
       $.post( "/removeFavori",{page,id}, function( data ) {

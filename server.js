@@ -31,15 +31,23 @@ var pageG = 1;
 
 //Mise en cache de mes films
 var cacheMyMovies = function(){
+    console.log("CACHE START");
     MyMovies.find().exec(function (err, movies) {
         myMovies = {};
         movies.forEach(function(element) {
             myMovies[element.id] = element;
-        }, this);
+        }
+        , this);
+        console.log("CACHE DONE",myMovies);
     });
 };
-
 cacheMyMovies();
+
+//Savoir si un film (ID) est en addFavori
+function isFavori(id){
+    return myMovies[id] ===undefined ? false : true;
+}
+
 
 //Mise en cache de la première page
 callDiscoverMovies(pageG,null,null);
@@ -69,6 +77,9 @@ function callDiscoverMovies(page,renderPage,id)
                     console.log("TEST is number ", element.id,Number.isInteger(element.id));
                     listMovies[page][element.id] = element;
                     listMovies[page][element.id].details = null;
+                    if(isFavori(element.id)){
+                        myMovies[element.id].content = listMovies[page][element.id];
+                    }
                 }, this);
             }
             if (renderPage)
@@ -229,6 +240,8 @@ app.get('/single', function (req, res) {
 });
 
 app.get('/home', function (req, res) {
+    req.query.page = 1;
+    pageG = 1;
     home(req,res);
 });
 
@@ -242,7 +255,7 @@ app.post('/addFavori', function (req, res) {
             cacheMyMovies();
         }
         else
-            res.send(String(err));
+            res.send(String(error));
     });
 });
 
@@ -255,7 +268,7 @@ app.post('/removeFavori', function (req, res) {
             cacheMyMovies();
         }
         else
-            res.send(String(err));
+            res.send(String(error));
     });
 });
 
