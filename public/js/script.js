@@ -10,26 +10,30 @@ $.urlParam = function(name){
        return results[1] || 0;
     }
 }
-var page = $.urlParam('page');
+var page = $.urlParam('page')? $.urlParam('page'):1;
 
-var addToFavori = {
-  "async": true,
-  "crossDomain": true,
-  "url": "\addToFavori",
-  "method": "POST",
-  "headers": {},
-  "data": "{id : }"
-}
+//Chargement des favoris
+  $.post( "/getFavoris",{page}, function( data ) {
+    for (var i = 0; i < data.length; i++) {
+      $("#"+data[i]+" .addFavori").removeClass("addFavori").addClass("myFavori");
+    }
+  });
 
-$.ajax(addToFavori).done(function (response) {
-  
-});
-
-
- $(".addFavori").click(function(event){ 
-        //var id = $("#").
-        $.post( "/addFavori",{page,id}, function( data ) {
-        });
+ $(".addFavori,.myFavori").click(function(event){ 
+    var id = $(this).parents('div .movie').attr('id');
+    var current = $(this);
+    if ($(this).hasClass("myFavori"))
+      $.post( "/removeFavori",{page,id}, function( data ) {
+        current.removeClass("myFavori");
+        current.addClass("addFavori");
+      });
+    else if ($(this).hasClass("addFavori"))
+      $.post( "/addFavori",{page,id}, function( data ) {
+        console.log(data);
+        current.removeClass("addFavori");
+        current.addClass("myFavori");
+      });
  });
+
 
 })

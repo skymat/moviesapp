@@ -75,46 +75,18 @@
 						</div>
             -->
 						<div class="movie-list">
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-3.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Maleficient</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
+				<!--		<%
+							for(var id in myMovies){
+							%>
+							<div class="movie" id="<%=param%>">
+								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= listMovies[page][param].poster_path%>" alt="<%= listMovies[page][param].title%>"></figure>
+								<div class="movie-title"><a href="single?id=<%= listMovies[page][param].id%>"><%= listMovies[page][param].title%></a></div>
+								<img class="<%= listMovies[page][param].favori ? 'myFavori' : 'addFavori';%>"></img>
+								<p class="giveMeEllipsis"><%= listMovies[page][param].overview%></p>
 							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-4.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">The adventure of Tintin</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-5.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Hobbit</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-6.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Exists</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-1.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Drive hard</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-2.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Robocop</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-7.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">Life of Pi</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
-							<div class="movie">
-								<figure class="movie-poster"><img src="dummy/thumb-8.jpg" alt="#"></figure>
-								<div class="movie-title"><a href="single">The Colony</a></div>
-								<p>Sed ut perspiciatis unde omnis iste natus error voluptatem doloremque.</p>
-							</div>
+							<%
+							}
+						%>-->
 						</div> <!-- .movie-list -->
 
             <!--

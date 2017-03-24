@@ -58,11 +58,10 @@
 					<div class="page">
 						
 						<div class="content">
-							<div class="row">
+							<div class="row" id="<%=id%>">
 								<div class="col-md-6">
 									<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w342<%= listMovies[page][id].poster_path%>" alt="#"></figure>
-									<img class="<%= listMovies[page][id].favori ? 'myFavori' : 'addFavori';%>"></img>
-									<p><%=listMovies[page][id].favori%></p>
+									<img class="addFavori"></img>
 								</div>
 								<div class="col-md-6">
 									<h2 class="movie-title"><%= listMovies[page][id].title%></h2>

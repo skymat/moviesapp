@@ -5,6 +5,11 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 var mongoose= require('mongoose');
 
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json()); // this is used for parsing the JSON object from POST
+
 //Connexion à la base de données Mongo
 mongoose.connect('mongodb://localhost/moviesapp' , function(err) {
   if (err) { throw err; }
@@ -18,18 +23,30 @@ var myMovieAccountSchema = mongoose.Schema({
 
 //Lie le schéma au model Mongo
 var MyMovies = mongoose.model('MyMovies', myMovieAccountSchema);
-/*
-var fav =  new MyMovies({id : 118340,favori : true});
-  fav.save(function (error, fav) {
-    
-  });
-*/
+
+//VARIABLES GLOBALES
 var listMovies = {};
+var myMovies = {};
 var pageG = 1;
-//callDiscoverMovies(pageG,null,null);
+
+//Mise en cache de mes films
+var cacheMyMovies = function(){
+    MyMovies.find().exec(function (err, movies) {
+        myMovies = {};
+        movies.forEach(function(element) {
+            myMovies[element.id] = element;
+        }, this);
+    });
+};
+
+cacheMyMovies();
+
+//Mise en cache de la première page
+callDiscoverMovies(pageG,null,null);
+
 function callDiscoverMovies(page,renderPage,id)
 {
-    console.log("page: " + page, " -- renderPage: ", renderPage , " -- id: "+ id );
+    //console.log("page: " + page, " -- renderPage: ", renderPage , " -- id: "+ id );
     if(listMovies[page] === undefined)
     {
         listMovies[page] = {};
@@ -49,18 +66,11 @@ function callDiscoverMovies(page,renderPage,id)
             if(body != undefined) {
                 listMovies.totalPages = body.total_pages;
                 body.results.forEach(function(element) {
+                    console.log("TEST is number ", element.id,Number.isInteger(element.id));
                     listMovies[page][element.id] = element;
                     listMovies[page][element.id].details = null;
-                    
-                    var fav = isFavori(element.id);
-                
-                    console.log("id",fav);
-                    listMovies[page][element.id].favori = fav;
-                    
-                    console.log("ELEMENT ID - " + element.id);
                 }, this);
             }
-            console.log(renderPage);
             if (renderPage)
                 if (!id)
                     renderPage();
@@ -131,17 +141,6 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             }
         });
     }
-}
-
-var isFavori = function(id){
-    var fav = false;
-    //Récupération de l'info Boolean si le film est en favori
-    MyMovies.find({id : id}).exec(function (err, movie) {
-        fav = movie.length > 0;
-        console.log(id,fav);
-        return fav;
-    });
-    console.log("return",fav);
 }
 
 function formatAndSaveCategories(page,id){
@@ -233,13 +232,54 @@ app.get('/home', function (req, res) {
     home(req,res);
 });
 
+app.post('/addFavori', function (req, res) {
+    var id = parseInt(req.body.id, 10);
+    var page = parseInt(req.body.page, 10);
+    var fav =  new MyMovies({id,favori : true});
+    fav.save(function (error, fav) {
+        if (!error){
+            res.send("true");
+            cacheMyMovies();
+        }
+        else
+            res.send(String(err));
+    });
+});
+
+app.post('/removeFavori', function (req, res) {
+    var id = parseInt(req.body.id, 10);
+    var page = parseInt(req.body.page, 10);
+    MyMovies.remove({ id },function (error) {
+        if (!error){
+            res.send("true");
+            cacheMyMovies();
+        }
+        else
+            res.send(String(err));
+    });
+});
+
+app.post('/getFavoris', function (req, res) {
+    var page = parseInt(req.body.page, 10);
+    console.log(page);
+    var fav = [];
+    if (listMovies[page])
+        for(var id in listMovies[page]){
+            if (myMovies[id]!= undefined){
+                if (myMovies[id].favori)
+                    fav.push(id);
+            }
+        }
+    res.json(fav);
+});
+
 app.get('/contact', function (req, res) {
   res.render('contact', {
   });
 });
 
 app.get('/review', function (req, res) {
-  res.render('review', {
+  res.render('review', {listMovies,myMovies
   });
 });
 
