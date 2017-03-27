@@ -4,11 +4,20 @@ var app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 var mongoose= require('mongoose');
-
+var session = require("express-session");
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // this is used for parsing the JSON object from POST
+
+//Initialisation de la sessionapp.use(
+app.use(
+ session({ 
+  secret: 'a4f8071f-c873-4447-8ee2',
+  resave: false,
+  saveUninitialized: false,
+ })
+);
 
 //Connexion à la base de données Mongo
 mongoose.connect('mongodb://localhost/moviesapp' , function(err) {
@@ -28,17 +37,18 @@ var MyMovies = mongoose.model('MyMovies', myMovieAccountSchema);
 var listMovies = {};
 var myMovies = {};
 var pageG = 1;
+const pageF = 0;//Page des favoris stockées en mémoire 
+listMovies[pageF] = {};
 
 //Mise en cache de mes films
 var cacheMyMovies = function(){
-    console.log("CACHE START");
     MyMovies.find().exec(function (err, movies) {
         myMovies = {};
         movies.forEach(function(element) {
             myMovies[element.id] = element;
+            callDiscoverMovieDetailsId(pageF,null,element.id);
         }
         , this);
-        console.log("CACHE DONE",myMovies);
     });
 };
 cacheMyMovies();
@@ -49,8 +59,9 @@ function isFavori(id){
 }
 
 function setFavoriCache(id,page){
-    if (page && listMovies[page]!= undefined && listMovies[page][id])
+    if (page != null && listMovies[page]!= undefined && listMovies[page][id]){
         myMovies[id].content = listMovies[page][id];
+    }
 }
 
 
@@ -59,7 +70,6 @@ callDiscoverMovies(pageG,null,null);
 
 function callDiscoverMovies(page,renderPage,id)
 {
-    //console.log("page: " + page, " -- renderPage: ", renderPage , " -- id: "+ id );
     if(listMovies[page] === undefined)
     {
         listMovies[page] = {};
@@ -74,17 +84,13 @@ function callDiscoverMovies(page,renderPage,id)
         
 
         request(settings.url, function(error, response, body) {
-            console.log("PAGE WS: " + page);
             body = JSON.parse(body);
             if(body != undefined) {
                 listMovies.totalPages = body.total_pages;
                 body.results.forEach(function(element) {
-                    console.log("TEST is number ", element.id,Number.isInteger(element.id));
                     listMovies[page][element.id] = element;
                     listMovies[page][element.id].details = null;
-                    if(isFavori(element.id)){
-                        setFavoriCache(id,page);
-                    }
+
                 }, this);
             }
             if (renderPage)
@@ -104,7 +110,14 @@ function callDiscoverMovies(page,renderPage,id)
 
 //fonction  pour appeler le WS de détails d'un film, avec son id
 function callDiscoverMovieDetailsId(page,renderPage,id){
-    console.log("DETAILS " ,listMovies[page][id].details != null);
+
+    //Cas de la page  = 0 correspondant aux Favoris
+    if (page == pageF){
+        listMovies[page][id] = {};
+         listMovies[page][id].details = null;
+    }
+
+
     //Si le détails a déjà été mis en mémoire, on rend la page sans rappeler le WS
     if (listMovies[page][id].details != null){
         if (renderPage)
@@ -120,13 +133,15 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             "headers": {},
             "data": "{}"
         }
+        
         //WS détails
         request(settingsDetails.url, function(error, response, body) {
-            console.log("details - " + id);
             body = JSON.parse(body);
-            if(body != undefined && page) {
-                console.log("detail affectation - " + id);
+            if(body != undefined && page != null) {
                 listMovies[page][id].details = body;
+                if(isFavori(id)){
+                        setFavoriCache(id,pageF);
+                }
                 formatAndSaveCategories(page,id);
                 listMovies[page][id].scenaristes = "";
                 listMovies[page][id].realisateurs = "";
@@ -144,7 +159,7 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
                 //WS acteurs/Staff
                 request(people.url, function(error, response, body) {
                     body = JSON.parse(body);
-                    if(body != undefined && page) {
+                    if(body != undefined && page != null) {
                         formatAndSaveRealisateurs(page,id,body);
                         formatAndSaveScenaristes(page,id,body);
                         formatAndSaveActeurs(page,id,body);
@@ -160,6 +175,7 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
 }
 
 function formatAndSaveCategories(page,id){
+    
     categories = "";
     for (var i = 0; i < listMovies[page][id].details.genres.length; i++) {
         categories+=listMovies[page][id].details.genres[i].name;
@@ -220,20 +236,16 @@ app.get('/', function (req, res) {
 
 app.get('/single', function (req, res) {
     var renderPage = function (id) {
-        res.render('single', {listMovies,page : pageG,id});
+        res.render('single', {listMovies,page : pageG,id,favori : isFavori(id)});
     }
     if (req.query.id != null){
         if(listMovies[pageG][req.query.id]!= undefined){
-            console.log("AVANT callDiscoverMovieDetailsId");
             callDiscoverMovieDetailsId(pageG,renderPage,req.query.id);
-            console.log("APRES callDiscoverMovieDetailsId");
         }
         else
         {
             try {
-                    console.log("AVANT callDiscoverMovies");
                     callDiscoverMovies(pageG,renderPage,req.query.id);
-                    console.log("APRES callDiscoverMovies");
             }
             catch (e) {
                 console.log("Exception",e);
@@ -279,7 +291,6 @@ app.post('/removeFavori', function (req, res) {
 
 app.post('/getFavoris', function (req, res) {
     var page = parseInt(req.body.page, 10);
-    console.log(page);
     var fav = [];
     if (listMovies[page])
         for(var id in listMovies[page]){
@@ -297,10 +308,10 @@ app.get('/contact', function (req, res) {
 });
 
 app.get('/review', function (req, res) {
-var pb = "PB ça marche pas : il faut que je trouve une solution pour pré charger (ou call WS détails) les données sans lien avec la notion de pagination. ";
-pb += "Du coup ça oblige à revoir le contenu de la page single sans notion de [page]";
-//res.render('review', {listMovies,myMovies  });
-res.send(pb);
+pageG = 0;//Les données provenant du WS sont stockés à la page 0 en mémoire
+
+res.render('review', {listMovies,myMovies  });
+
 });
 
 

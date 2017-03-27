@@ -60,17 +60,17 @@
 						<div class="content">
 							<div class="row">
 								<div class="col-md-6">
-									<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w342<%= listMovies[page][id].poster_path%>" alt="#"></figure>
-									<div class="movie-title"><i class="fa fa-star-o" aria-hidden="true"></i></div>
+									<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w342<%= listMovies[page][id].details.poster_path%>" alt="#"></figure>
+									<div class="movie-title"><i class="fa <%= favori ? 'fa-star' : 'fa-star-o'%>" aria-hidden="true"></i></div>
 								</div>
 								<div class="col-md-6">
-									<h2 class="movie-title"><%= listMovies[page][id].title%></h2>
+									<h2 class="movie-title"><%= listMovies[page][id].details.title%></h2>
 									<div class="movie-summary">
-										<p><%= listMovies[page][id].overview%></p>
+										<p><%= listMovies[page][id].details.overview%></p>
 									</div>
 									<ul class="movie-meta">
 										<li><strong>Notation :</strong> 
-											<div class="star-rating" title="Rated <%= parseInt(listMovies[page][id].vote_average, 10)/2%> out of 5"><span style="width:<%= parseInt(listMovies[page][id].vote_average, 10)*10%>%"><strong class="rating"><%= parseInt(listMovies[page][id].vote_average, 10)/2%></strong> out of 5</span></div>
+											<div class="star-rating" title="Rated <%= parseInt(listMovies[page][id].details.vote_average, 10)/2%> out of 5"><span style="width:<%= parseInt(listMovies[page][id].details.vote_average, 10)*10%>%"><strong class="rating"><%= parseInt(listMovies[page][id].details.vote_average, 10)/2%></strong> out of 5</span></div>
 										</li>
 										<li><strong>Durée :</strong> <%= listMovies[page][id].details.runtime%> min</li>
 										<li><strong>Date de sortie :</strong> <%= listMovies[page][id].details.release_date%></li>
