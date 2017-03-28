@@ -54,10 +54,11 @@ var cacheMyMovies = function(session){
                 favoris.movies.forEach(function(id) {
                     session.myMovies[id] = {};
                     session.myMovies[id].content = null;
-                    callDiscoverMovieDetailsId(pageF,null,id);
-                    resolve();
+                    callDiscoverMovieDetailsId(pageF,null,id,session);
+                    setFavoriCache(id,pageF,session);                    
                 }
                 , this);
+                resolve();
             }
             , this);
             }).then(function (fulfilled) {
@@ -81,6 +82,7 @@ function isFavori(id,session){
 
 function setFavoriCache(id,page,session){
     if (page != null && listMovies[page]!= undefined && listMovies[page][id]){
+        console.log("setFavoriCache",page,id);
         session.myMovies[id].content = listMovies[page][id];
     }
 }
@@ -118,7 +120,7 @@ function callDiscoverMovies(page,renderPage,id)
                 if (!id)
                     renderPage();
                 else
-                    callDiscoverMovieDetailsId(page,renderPage,id);           
+                    callDiscoverMovieDetailsId(page,renderPage,id,null);           
         });
     }
     else
@@ -126,11 +128,11 @@ function callDiscoverMovies(page,renderPage,id)
             if (!id)
                 renderPage();
             else
-                callDiscoverMovieDetailsId(page,renderPage,id);  
+                callDiscoverMovieDetailsId(page,renderPage,id,null);  
 }
 
 //fonction  pour appeler le WS de détails d'un film, avec son id
-function callDiscoverMovieDetailsId(page,renderPage,id){
+function callDiscoverMovieDetailsId(page,renderPage,id,session){
 
     //Cas de la page  = 0 correspondant aux Favoris
     if (page == pageF){
@@ -160,9 +162,11 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             body = JSON.parse(body);
             if(body != undefined && page != null) {
                 listMovies[page][id].details = body;
-  /*              if(isFavori(id)){
-                        setFavoriCache(id,pageF);
-                }*/
+                if (session != null && session.myMovies != null){
+                    if(isFavori(id,session)){
+                            setFavoriCache(id,pageF,session);
+                    }
+                }
                 formatAndSaveCategories(page,id);
                 listMovies[page][id].scenaristes = "";
                 listMovies[page][id].realisateurs = "";
@@ -260,7 +264,7 @@ app.get('/single', function (req, res) {
     }
     if (req.query.id != null){
         if(listMovies[pageG][req.query.id]!= undefined){
-            callDiscoverMovieDetailsId(pageG,renderPage,req.query.id);
+            callDiscoverMovieDetailsId(pageG,renderPage,req.query.id,req.session);
         }
         else
         {
@@ -380,6 +384,8 @@ app.get('/contact', function (req, res) {
 
 app.get('/review', function (req, res) {
     pageG = 0;//Les données provenant du WS sont stockés à la page 0 en mémoire
+    console.log("REVIEW");
+    console.log(req.session.myMovies);
     res.render('review', {listMovies,myMovies : req.session.myMovies,login : req.session.email,isLoged : req.session.isLoged   });
 });
 
