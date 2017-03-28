@@ -24,6 +24,13 @@
 
 	<body>
 		
+		<div class="seLoguer">
+			<form id="loginform" method="get" action="/login">						
+				Email : <input type="text" name="email" id="emaillogin" />
+				Mot de passe : <input type="password" name="password" id="passwordlogin" />
+				<input type="submit" id="submit" value="Me loguer" />						
+			</form>
+		</div>
 
 		<div id="site-content">
 			<header class="site-header">
@@ -36,7 +43,9 @@
 						</div>
 					</a> <!-- #branding -->
 
-					<div class="main-navigation">
+
+
+					<div class="main-navigation"><div id="loginuser" class="log"><%=isLoged ? login : ""%></div>
 						<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
 						<ul class="menu">
 							<li class="menu-item  current-menu-item"><a href="home">Last releases</a></li>
@@ -75,7 +84,7 @@
 						</div>
             -->
 						<div class="movie-list">
-						<%
+						<% 
 							for(var param in listMovies[page]){
 								if(parseInt(param, 10)){
 							%>

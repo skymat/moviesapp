@@ -5,6 +5,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 var mongoose= require('mongoose');
 var session = require("express-session");
+var promise = require('promise'); 
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -26,8 +27,9 @@ mongoose.connect('mongodb://localhost/moviesapp' , function(err) {
 
 //Définition du schéma dans Mongo
 var myMovieAccountSchema = mongoose.Schema({
-    id: Number,
-    favori: Boolean,
+    login : String,
+    password : String,
+    movies : Array
 });
 
 //Lie le schéma au model Mongo
@@ -35,32 +37,51 @@ var MyMovies = mongoose.model('MyMovies', myMovieAccountSchema);
 
 //VARIABLES GLOBALES
 var listMovies = {};
-var myMovies = {};
 var pageG = 1;
 const pageF = 0;//Page des favoris stockées en mémoire 
 listMovies[pageF] = {};
 
+
+
 //Mise en cache de mes films
-var cacheMyMovies = function(){
-    MyMovies.find().exec(function (err, movies) {
-        myMovies = {};
-        movies.forEach(function(element) {
-            myMovies[element.id] = element;
-            callDiscoverMovieDetailsId(pageF,null,element.id);
+var cacheMyMovies = function(session){
+    return new Promise(function (resolve, reject) {
+        console.log("Debut cacheMyMovies");
+        if (session){
+            return new Promise(function (resolve, reject) {
+            MyMovies.findOne({email:session.email}).exec(function (err, favoris) {
+                session.myMovies = {};
+                favoris.movies.forEach(function(id) {
+                    session.myMovies[id] = {};
+                    session.myMovies[id].content = null;
+                    callDiscoverMovieDetailsId(pageF,null,id);
+                    resolve();
+                }
+                , this);
+            }
+            , this);
+            }).then(function (fulfilled) {
+                console.log(session.myMovies);
+                resolve(session.myMovies);
+            })
+            .catch(function (error) {
+                console.log(error.message);
+            });
         }
-        , this);
+        else
+            reject();
+        console.log("Fin cacheMyMovies");
     });
 };
-cacheMyMovies();
 
-//Savoir si un film (ID) est en addFavori
-function isFavori(id){
-    return myMovies[id] ===undefined ? false : true;
+//Savoir si un film (ID) est en Favori
+function isFavori(id,session){
+    return session.myMovies[id] ===undefined ? false : true;
 }
 
-function setFavoriCache(id,page){
+function setFavoriCache(id,page,session){
     if (page != null && listMovies[page]!= undefined && listMovies[page][id]){
-        myMovies[id].content = listMovies[page][id];
+        session.myMovies[id].content = listMovies[page][id];
     }
 }
 
@@ -139,9 +160,9 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
             body = JSON.parse(body);
             if(body != undefined && page != null) {
                 listMovies[page][id].details = body;
-                if(isFavori(id)){
+  /*              if(isFavori(id)){
                         setFavoriCache(id,pageF);
-                }
+                }*/
                 formatAndSaveCategories(page,id);
                 listMovies[page][id].scenaristes = "";
                 listMovies[page][id].realisateurs = "";
@@ -175,7 +196,6 @@ function callDiscoverMovieDetailsId(page,renderPage,id){
 }
 
 function formatAndSaveCategories(page,id){
-    
     categories = "";
     for (var i = 0; i < listMovies[page][id].details.genres.length; i++) {
         categories+=listMovies[page][id].details.genres[i].name;
@@ -225,7 +245,7 @@ function home(req,res){
         pageG = parseInt(req.query.page, 10);
     }
     var renderPage = function () {
-        res.render('home', {listMovies,page : pageG});
+        res.render('home', {listMovies,page : pageG,login:req.session.email,isLoged : req.session.isLoged});
     }
     callDiscoverMovies(pageG,renderPage,null);
 }
@@ -236,7 +256,7 @@ app.get('/', function (req, res) {
 
 app.get('/single', function (req, res) {
     var renderPage = function (id) {
-        res.render('single', {listMovies,page : pageG,id,favori : isFavori(id)});
+        res.render('single', {listMovies,page : pageG,id,favori : isFavori(id),login : req.session.email,isLoged : req.session.isLoged});
     }
     if (req.query.id != null){
         if(listMovies[pageG][req.query.id]!= undefined){
@@ -249,7 +269,7 @@ app.get('/single', function (req, res) {
             }
             catch (e) {
                 console.log("Exception",e);
-                res.render('home', {listMovies,page : pageG});
+                res.render('home', {listMovies,page : pageG,login : req.session.email,isLoged : req.session.isLoged});
             }
 
         }
@@ -265,41 +285,92 @@ app.get('/home', function (req, res) {
 app.post('/addFavori', function (req, res) {
     var id = parseInt(req.body.id, 10);
     var page = parseInt(req.body.page, 10);
-    var fav =  new MyMovies({id,favori : true});
-    fav.save(function (error, fav) {
-        if (!error){
-            res.send("true");
-            cacheMyMovies();
-        }
-        else
-            res.send(String(error));
-    });
+    if(req.session.isLoged){
+        MyMovies.findOne({email:req.session.email}).exec(function (err, favoris) {
+            favoris.movies.push(id);
+            MyMovies.update({ email: req.session.email }, { movies : favoris.movies},function (error, fav) {
+                    if (!error){
+                        res.send("true");
+                        cacheMyMovies(req.session);
+                    }
+                    else
+                        res.send(String(error));
+                });
+                //callDiscoverMovieDetailsId(pageF,null,element.id);
+            }
+            , this);
+    }
 });
+
+    
+
 
 app.post('/removeFavori', function (req, res) {
     var id = parseInt(req.body.id, 10);
     var page = parseInt(req.body.page, 10);
-    MyMovies.remove({ id },function (error) {
-        if (!error){
-            res.send("true");
-            cacheMyMovies();
+
+    if(req.session.isLoged){
+        MyMovies.findOne({email:req.session.email}).exec(function (err, favoris) {
+            var position = null;
+            for (var i = 0; i < favoris.movies.length; i++) {
+                if (favoris.movies[i] == id){
+                    position = i;
+                    break;
+                }
+            }
+            if (position){
+                favoris.movies.splice(position,1);
+                MyMovies.update({ email: req.session.email }, { movies : favoris.movies},function (error, fav) {
+                        if (!error){
+                            res.send("true");
+                            cacheMyMovies(req.session);
+                        }
+                        else
+                            res.send(String(error));
+                    });
+                }
         }
-        else
-            res.send(String(error));
-    });
+        , this);
+    }
+
 });
 
 app.post('/getFavoris', function (req, res) {
-    var page = parseInt(req.body.page, 10);
-    var fav = [];
-    if (listMovies[page])
-        for(var id in listMovies[page]){
-            if (myMovies[id]!= undefined){
-                if (myMovies[id].favori)
-                    fav.push(id);
+    if (req.session.isLoged){
+        console.log("getFavoris");
+        cacheMyMovies(req.session).then(function (content) {
+            console.log("promise content");
+            var page = parseInt(req.body.page, 10);
+            var fav = [];
+
+            for (var id in req.session.myMovies) {
+                fav.push(id);
             }
+            console.log(fav);
+            res.json(fav);
+        }).catch(function (error) {
+            console.log(error.message);
+        });;
+    }
+});
+
+app.get('/login', function (req, res) {
+    console.log(req.query);
+    MyMovies.findOne({email:req.query.email,password : req.query.password}).exec(function (err, element) {
+        if (!err && element){
+            req.session.email = req.query.email;
+            console.log(req.query.email);
+            req.session.email = req.query.email;
+            req.session.isLoged = true;
+            //res.render('review', {listMovies,myMovies,login : req.session.email,isLoged : req.session.isLoged  });
+            home(req,res);
         }
-    res.json(fav);
+        else
+            res.send(String(err));
+    }
+    , this);
+
+
 });
 
 app.get('/contact', function (req, res) {
@@ -308,10 +379,8 @@ app.get('/contact', function (req, res) {
 });
 
 app.get('/review', function (req, res) {
-pageG = 0;//Les données provenant du WS sont stockés à la page 0 en mémoire
-
-res.render('review', {listMovies,myMovies  });
-
+    pageG = 0;//Les données provenant du WS sont stockés à la page 0 en mémoire
+    res.render('review', {listMovies,myMovies : req.session.myMovies,login : req.session.email,isLoged : req.session.isLoged   });
 });
 
 

@@ -12,16 +12,35 @@ $.urlParam = function(name){
 }
 var page = $.urlParam('page')? $.urlParam('page'):1;
 
+
+$('#loginform').on('submit', function(e) {
+  
+  console.log("submit");
+  var val = $("#username").val();
+  return;
+  $.get( "/login",{email:$("#emaillogin").val(),password:$("#passwordlogin").val()}, function( data ) {
+      console.log("post",val);
+      console.log(data);
+      $("#loginuser").html(data);
+        });
+        
+});
+
+
 //Chargement des favoris
   $.post( "/getFavoris",{page}, function( data ) {
+    console.log("getfavoris post",data);
     for (var i = 0; i < data.length; i++) {
+      console.log("favori",data[i]);
       $("#"+data[i]+" .fa-star-o").removeClass("fa-star-o").addClass("fa-star");
     }
   });
 
  $(".fa-star-o,.fa-star").click(function(event){ 
     var id = $(this).parents('div .movief').attr('id');
-    console.log(id);
+    var url = window.location.href;
+
+    console.log(url);
     var current = $(this);
     if ($(this).hasClass("fa-star"))
       $.post( "/removeFavori",{page,id}, function( data ) {
