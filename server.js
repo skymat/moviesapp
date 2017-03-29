@@ -11,30 +11,6 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // this is used for parsing the JSON object from POST
 
-/////TRELLO
-var t = new Trello("c25f219ff44b0d3f8935d648f58b92d3", "9c05ec27d1c3c19e9ad620af87b9d8d61ec75dd06c80b6f6179a73e748ddfc2f");
-t.get("/1/board/58da758d259e0b65077e71c7", function(err, data) {
-  if (err) throw err;
-  console.log(data);
-});
- 
-// URL arguments are passed in as an object. 
-t.get("/1/members/me", { cards: "open" }, function(err, data) {
-  if (err) throw err;
-  console.log(data);
-});
-
-
-
-
-t.post("/1/cards",{ idList: "58da75973301e47aee43e504",name : "TEST" }, function(err, data) {
-  if (err) throw err;
-  console.log(data);
-});
-
-///// \ TRELLO
-
-
 
 //Initialisation de la sessionapp.use(
 app.use(
@@ -328,10 +304,6 @@ app.post('/getFavoris', function (req, res) {
     res.json(fav);
 });
 
-app.get('/contact', function (req, res) {
-  res.render('contact', {
-  });
-});
 
 app.get('/review', function (req, res) {
 pageG = 0;//Les données provenant du WS sont stockés à la page 0 en mémoire
@@ -340,6 +312,48 @@ res.render('review', {listMovies,myMovies  });
 
 });
 
+
+
+app.post('/contact', function (req, res) {
+    console.log(req.body);
+    var name = "Nom : " + req.body.name;
+    name += " - Email : " + req.body.email;
+    var desc = "Website : " + req.body.website;
+    desc += "\n\nMessage : \n" + req.body.message;
+    t.post("/1/cards",{ idList: "58da75973301e47aee43e504",name,desc }, function(err, data) {
+        var message = "Message envoyé";
+        if (err)
+            message = "Une erreur est survenue, veuillez nous contacter directement avec notre adresse email svp."
+        res.json(message);
+    });
+});
+
+app.get('/contact', function (req, res) {
+    res.render('contact', {
+    });
+});
+
+/////TRELLO
+    var t = new Trello("c25f219ff44b0d3f8935d648f58b92d3", "9c05ec27d1c3c19e9ad620af87b9d8d61ec75dd06c80b6f6179a73e748ddfc2f");
+/*
+var t = new Trello("c25f219ff44b0d3f8935d648f58b92d3", "9c05ec27d1c3c19e9ad620af87b9d8d61ec75dd06c80b6f6179a73e748ddfc2f");
+t.get("/1/board/58da758d259e0b65077e71c7", function(err, data) {
+  if (err) throw err;
+  console.log(data);
+});
+ 
+// URL arguments are passed in as an object. 
+t.get("/1/members/me", { cards: "open" }, function(err, data) {
+  if (err) throw err;
+  console.log(data);
+});
+
+t.post("/1/cards",{ idList: "58da75973301e47aee43e504",name : "TEST" }, function(err, data) {
+  if (err) throw err;
+  console.log(data);
+});
+*/
+///// \ TRELLO
 
 app.listen(80, function () {
   console.log("Server listening on port 80");
