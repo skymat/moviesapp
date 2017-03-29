@@ -76,8 +76,8 @@
             -->
 						<div class="movie-list">
 						<%							
-							for(var id in myMovies){								
-								if(myMovies[id].content != undefined){
+							for(var id in myMovies){						
+								if(myMovies[id].content != undefined && myMovies[id].content.details){
 							%>
 							<div class="movie movief" id="<%=id%>">
 								<figure class="movie-poster"><img src="https://image.tmdb.org/t/p/w185<%= myMovies[id].content.details.poster_path%>" alt="<%= myMovies[id].content.details.title%>"></figure>

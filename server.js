@@ -54,6 +54,7 @@ var cacheMyMovies = function(session){
                 favoris.movies.forEach(function(id) {
                     session.myMovies[id] = {};
                     session.myMovies[id].content = null;
+                    console.log("session.myMovies[id].content ------------------- NULL");
                     callDiscoverMovieDetailsId(pageF,null,id,session);
                     setFavoriCache(id,pageF,session);                    
                 }
@@ -77,6 +78,7 @@ var cacheMyMovies = function(session){
 
 //Savoir si un film (ID) est en Favori
 function isFavori(id,session){
+    console.log(session);
     return session.myMovies[id] ===undefined ? false : true;
 }
 
@@ -84,6 +86,7 @@ function setFavoriCache(id,page,session){
     if (page != null && listMovies[page]!= undefined && listMovies[page][id]){
         console.log("setFavoriCache",page,id);
         session.myMovies[id].content = listMovies[page][id];
+        console.log("content myMovies", session.myMovies[id].content);
     }
 }
 
@@ -164,6 +167,7 @@ function callDiscoverMovieDetailsId(page,renderPage,id,session){
                 listMovies[page][id].details = body;
                 if (session != null && session.myMovies != null){
                     if(isFavori(id,session)){
+                            console.log("Bon endroit",body.title);
                             setFavoriCache(id,pageF,session);
                     }
                 }
@@ -260,7 +264,7 @@ app.get('/', function (req, res) {
 
 app.get('/single', function (req, res) {
     var renderPage = function (id) {
-        res.render('single', {listMovies,page : pageG,id,favori : isFavori(id),login : req.session.email,isLoged : req.session.isLoged});
+        res.render('single', {listMovies,page : pageG,id,favori : isFavori(id,req.session),login : req.session.email,isLoged : req.session.isLoged});
     }
     if (req.query.id != null){
         if(listMovies[pageG][req.query.id]!= undefined){
@@ -385,7 +389,7 @@ app.get('/contact', function (req, res) {
 app.get('/review', function (req, res) {
     pageG = 0;//Les données provenant du WS sont stockés à la page 0 en mémoire
     console.log("REVIEW");
-    console.log(req.session.myMovies);
+    
     res.render('review', {listMovies,myMovies : req.session.myMovies,login : req.session.email,isLoged : req.session.isLoged   });
 });
 

@@ -39,7 +39,6 @@ $('#loginform').on('submit', function(e) {
  $(".fa-star-o,.fa-star").click(function(event){ 
     var id = $(this).parents('div .movief').attr('id');
     var url = window.location.href;
-
     console.log(url);
     var current = $(this);
     if ($(this).hasClass("fa-star"))
