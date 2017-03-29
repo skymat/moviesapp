@@ -7,6 +7,9 @@ var mongoose= require('mongoose');
 var session = require("express-session");
 var Trello = require("node-trello");
 
+var Mailchimp = require('mailchimp-api-v3')
+var mailchimp = new Mailchimp("d4d1fd4cbb4d4f1b8165eff1d880c83e-us15");
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // this is used for parsing the JSON object from POST
@@ -322,9 +325,20 @@ app.post('/contact', function (req, res) {
     desc += "\n\nMessage : \n" + req.body.message;
     t.post("/1/cards",{ idList: "58da75973301e47aee43e504",name,desc }, function(err, data) {
         var message = "Message envoyé";
+        var merror = "Une erreur est survenue, veuillez nous contacter directement avec notre adresse email svp.";
         if (err)
-            message = "Une erreur est survenue, veuillez nous contacter directement avec notre adresse email svp."
-        res.json(message);
+            message = merror;
+        else
+        {
+            mailchimp.post({
+                path : '/lists/022e97233d/members',
+                body : {email_address : req.body.email,status : "subscribed",merge_fields : {LNAME: req.body.name}}
+            }, function (err, result) {
+                    if (err)
+                        message = "Mailchimp erreur. "+ merror;
+                    res.json(message);
+                });
+        }
     });
 });
 
@@ -354,6 +368,12 @@ t.post("/1/cards",{ idList: "58da75973301e47aee43e504",name : "TEST" }, function
 });
 */
 ///// \ TRELLO
+
+
+///Mailchimp
+
+
+/// \Mailchimp
 
 app.listen(80, function () {
   console.log("Server listening on port 80");

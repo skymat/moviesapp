@@ -38,7 +38,7 @@ var page = $.urlParam('page')? $.urlParam('page'):1;
 
 //Contact
 $('#contact-form-id').on('submit', function(e) {
-    console.log("submit contact form");
+
   event.preventDefault();
 
   $.post( "/contact",{email:$("#email").val(),name:$("#name").val(),website:$("#website").val(),message:$("#message").val()}, function( data ) {
