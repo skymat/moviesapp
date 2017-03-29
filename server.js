@@ -5,10 +5,36 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 var mongoose= require('mongoose');
 var session = require("express-session");
+var Trello = require("node-trello");
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // this is used for parsing the JSON object from POST
+
+/////TRELLO
+var t = new Trello("c25f219ff44b0d3f8935d648f58b92d3", "9c05ec27d1c3c19e9ad620af87b9d8d61ec75dd06c80b6f6179a73e748ddfc2f");
+t.get("/1/board/58da758d259e0b65077e71c7", function(err, data) {
+  if (err) throw err;
+  console.log(data);
+});
+ 
+// URL arguments are passed in as an object. 
+t.get("/1/members/me", { cards: "open" }, function(err, data) {
+  if (err) throw err;
+  console.log(data);
+});
+
+
+
+
+t.post("/1/cards",{ idList: "58da75973301e47aee43e504",name : "TEST" }, function(err, data) {
+  if (err) throw err;
+  console.log(data);
+});
+
+///// \ TRELLO
+
+
 
 //Initialisation de la sessionapp.use(
 app.use(
@@ -31,7 +57,7 @@ var myMovieAccountSchema = mongoose.Schema({
 });
 
 //Lie le schéma au model Mongo
-var MyMovies = mongoose.model('MyMovies', myMovieAccountSchema);
+var MyMovies = mongoose.model('MyMoviesOnly', myMovieAccountSchema);
 
 //VARIABLES GLOBALES
 var listMovies = {};
